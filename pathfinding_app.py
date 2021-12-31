@@ -125,45 +125,43 @@ class PathfindingApp:
 
                 self.ui_manager.process_events(event)
 
-                if event.type == pygame.USEREVENT:
-                    if event.user_type == "ui_button_pressed":
-                        if event.ui_element == self.increment_pathfinder_button:
+                if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                    if event.ui_element == self.increment_pathfinder_button:
+                        self.playing_pathfinder = False
+                        self.current_finder.increment_algorithm()
+                    if event.ui_element == self.play_button:
+                        if self.playing_pathfinder:
                             self.playing_pathfinder = False
-                            self.current_finder.increment_algorithm()
-                        if event.ui_element == self.play_button:
-                            if self.playing_pathfinder:
-                                self.playing_pathfinder = False
-                                self.play_button.set_text('Play')
-                            else:
-                                self.playing_pathfinder = True
-                                self.play_button.set_text('Stop')
+                            self.play_button.set_text('Play')
+                        else:
+                            self.playing_pathfinder = True
+                            self.play_button.set_text('Stop')
 
-                        if event.ui_element == self.random_start_button:
+                    if event.ui_element == self.random_start_button:
+                        start_nav_node = random.choice(self.nav_node_graph)
+                        while start_nav_node == self.exit.nav_node:
                             start_nav_node = random.choice(self.nav_node_graph)
-                            while start_nav_node == self.exit.nav_node:
-                                start_nav_node = random.choice(self.nav_node_graph)
-                            self.entrance = PathFinderNode(start_nav_node, None, 0)
-                            self.set_current_pathfinder(self.current_finder.get_name())
+                        self.entrance = PathFinderNode(start_nav_node, None, 0)
+                        self.set_current_pathfinder(self.current_finder.get_name())
 
-                if event.type == pygame.USEREVENT:
-                    if event.user_type == "ui_drop_down_menu_changed":
-                        if event.ui_element == self.map_size_drop_down:
-                            self.maze_dimension = int(event.text.split('x')[0])
-                            self.maze_square_size = int(self.available_maze_space / self.maze_dimension) + 1
-                            result = create_maze(top_left=(20, 20),
-                                                 square_size=self.maze_square_size,
-                                                 width=self.maze_dimension,
-                                                 height=self.maze_dimension)
-                            self.walls = result[0]
-                            self.junctions = result[1]
-                            self.entrance = result[2]
-                            self.exit = result[3]
-                            self.nav_node_graph = [junction.nav_node for junction in self.junctions]
+                if event.type == pygame_gui.UI_DROP_DOWN_MENU_CHANGED:
+                    if event.ui_element == self.map_size_drop_down:
+                        self.maze_dimension = int(event.text.split('x')[0])
+                        self.maze_square_size = int(self.available_maze_space / self.maze_dimension) + 1
+                        result = create_maze(top_left=(20, 20),
+                                             square_size=self.maze_square_size,
+                                             width=self.maze_dimension,
+                                             height=self.maze_dimension)
+                        self.walls = result[0]
+                        self.junctions = result[1]
+                        self.entrance = result[2]
+                        self.exit = result[3]
+                        self.nav_node_graph = [junction.nav_node for junction in self.junctions]
 
-                            self.set_current_pathfinder(self.current_finder.get_name())
+                        self.set_current_pathfinder(self.current_finder.get_name())
 
-                        elif event.ui_element == self.pathfinder_drop_down:
-                            self.set_current_pathfinder(event.text)
+                    elif event.ui_element == self.pathfinder_drop_down:
+                        self.set_current_pathfinder(event.text)
 
             if self.playing_pathfinder:
                 self.play_speed = self.speed_slider.get_current_value()
